@@ -27,8 +27,7 @@ alpha = 0.02
 location_to_state = {'beg': 0,
                      'spend': 1,
                      'noSpend': 2,
-                     'end':3,
-                     'node':4
+                     'end':3
                      
             
                     
@@ -38,8 +37,8 @@ nothing=5+0
 #coeLand1=0.4179
 #coeReact1 =0.5362 
 #coeClick1 =0.1674
-coeLand1=--0.46801
-coeReact1 =-1.79781
+coeLand1=-0.46801
+coeReact1 =1.79781
 coeClick1 =0.47247
 budget=1
 #targeted_cost = 10
@@ -48,7 +47,8 @@ budget=1
 #covReact1=-0.41653
 #cpc= targeted_cost/targeted_conversion
 #budget formula: budget = scale*conversion
-
+data_store=[]
+result_store=[]
 test=['buy',4.3]
 state_to_location = {state: location for location, state in location_to_state.items()}
 
@@ -57,22 +57,21 @@ def route(starting_location,ending_location,cpc):
     day2_increase = (budget*coeClick1+budget*coeReact1+budget*coeLand1)*cpc
     function = (budget*0.4285) + budget*0.2686 + 1.0910*budget
     actions = [0,1,2,3]
-    R = np.array([[0,-budget,budget,0,0],
-              [0,0,0,day2_increase,0],
-              [0,0,0,budget,0],
-              [0,0,0,0,1],
-              [0,0,0,1,0]
+    R = np.array([[0,-budget,budget,0],
+              [0,0,0,day2_increase],
+              [0,0,0,budget],
+              [0,0,1,0],
               ])
 
     print('cpc:' + str(cpc))
     R_new = np.copy(R)
     ending_state = location_to_state[ending_location]
     R_new[ending_state, ending_state] = 10000
-    Q = np.array(np.zeros([5,5]))
+    Q = np.array(np.zeros([4,4]))
     for i in range(10000):
-        current_state = np.random.randint(0,5)
+        current_state = np.random.randint(0,4)
         playable_actions = []
-        for j in range(5):
+        for j in range(4):
             if R_new[current_state, j] != 0:
                 playable_actions.append(j)
         next_state = np.random.choice(playable_actions)
@@ -86,18 +85,20 @@ def route(starting_location,ending_location,cpc):
         next_location = state_to_location[next_state]
         route.append(next_location)
         starting_location = next_location
+        print(cpc)
+        print(route[1])
+        data_store.append([cpc,route[1]])
         print(route)
-        
     return route
 
 def best_route(starting_location, intermediary_location, ending_location):
     return route(starting_location, intermediary_location) + route(intermediary_location, ending_location)[1:]
 
-cpc_init=2
+cpc_init=120
 while(cpc_init>0):
     print('Route:')
     route('beg','end',cpc_init)
-    cpc_init= cpc_init -0.1
+    cpc_init= cpc_init - 0.1
 
 
 
