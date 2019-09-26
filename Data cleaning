@@ -1,0 +1,31 @@
+import pandas as pd
+from pandas import DataFrame
+import numpy as np
+import re
+
+df = pd.read_csv("C:\\Users\\MV\\Desktop\\DisruptiveData\\Project - Copy\\final.csv")
+d3 = df[df.sourceTypeName == 'Facebook Ads']
+d3 = d3[d3.columns.drop(list(d3.filter(regex='linkedin.*')))]
+d3 = d3[d3.columns.drop(list(d3.filter(regex='adwords.*')))]
+
+d3['data_lagged7'] = (d3.sort_values(by=['date'], ascending=True)
+                       .groupby(['campaign'])['common_cost'].shift(7))
+d3['data_lagged1'] = (d3.sort_values(by=['date'], ascending=True)
+                       .groupby(['campaign'])['common_cost'].shift(1))
+d3['data_lagged2'] = (d3.sort_values(by=['date'], ascending=True)
+                       .groupby(['campaign'])['common_cost'].shift(2))
+d3['data_lagged3'] = (d3.sort_values(by=['date'], ascending=True)
+                       .groupby(['campaign'])['common_cost'].shift(3))
+
+
+
+
+d3=d3.dropna(axis=1, how='all')
+
+d3=d3.dropna(subset=['data_lagged7','data_lagged1','data_lagged2','data_lagged3'])
+d_final=d3[['campaign','date','data_lagged1','data_lagged7',
+            'data_lagged2','facebookads_actions_post_reaction','facebookads_actions_landing_page_view',
+            'facebookads_actions_link_click','facebookads_actions_leadgen_other']]
+
+
+d_final.to_csv(r"C:\\Users\\MV\\Desktop\\DisruptiveData\\Project\\campaign.csv")
